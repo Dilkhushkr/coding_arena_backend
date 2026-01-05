@@ -21,5 +21,6 @@ from apps.accounts.views import home
 urlpatterns = [
     path("admin/", admin.site.urls),
      path("", home),
-    path("api/account/",include("apps.accounts.urls"))
+    path("api/account/",include("apps.accounts.urls")),
+    path('api/submissions/', include('apps.submissions.urls')),
 ]
