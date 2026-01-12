@@ -7,6 +7,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import AccessToken
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 def get_tokens_for_user(user):
     
@@ -22,7 +26,6 @@ def home(request):
 class RegisterView(APIView):
 
     def post(self, request):
-
         serializer = RegisterSerializer(data = request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -73,5 +76,66 @@ class LoginView(APIView):
             samesite="None"
 
         )
-
         return response
+
+class ProfileView(APIView):
+    def get(self, request):
+        token = request.COOKIES.get("access_token")
+        if not token:
+            return Response(
+                {"error" : "Authentication credentials were not Provided "},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        try:
+            access = AccessToken(token)
+            user_id = access.get("user_id")
+            user = User.objects.get(id=user_id)
+
+        except Exception :
+            return Response(
+                {"error" : "Invalid or expired token"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        data = {
+            "email" : user.email,
+            "name" : user.name,
+            "rank" : user.rank,
+            "wins" : user.wins,
+            "losses" : user.losses
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+class LogoutView(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+            except Exception:
+                pass
+        response = Response({"message" : "Logout successfully"}, status=status.HTTP_200_OK)
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
+
+class CheckAuthView(APIView):
+    def get(self, request):
+        token = request.COOKIES.get("access_token")
+        if not token:
+            return Response(
+                {"isAuthenticated": False},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        try:
+            access = AccessToken(token)
+            return Response(
+                {"isAuthenticated": True},
+                status=status.HTTP_200_OK
+            )
+        except Exception: 
+            return Response(
+                {"isAuthenticated": False},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
