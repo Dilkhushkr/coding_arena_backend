@@ -5,9 +5,17 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
-from .models import Submission
 from apps.problems.models import Problem
 from .models import ProgrammingLanguage
+from .serializers import ProgrammingLanguageSerializer
+
+
+
+class ProgrammingLanguageListAPIView(APIView):
+    def get(self,request):
+        language = ProgrammingLanguage.objects.all()
+        serializer = ProgrammingLanguageSerializer(language, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CreateSubmissionView(APIView):

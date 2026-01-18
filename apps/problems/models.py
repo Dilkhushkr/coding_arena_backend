@@ -6,7 +6,7 @@ class Problem(models.Model):
         ('easy', 'Easy'),
         ('medium', 'Medium'),
         ('hard', 'Hard'),
-     )
+    )
     
     title = models.CharField(max_length=255)
     description = models.TextField()

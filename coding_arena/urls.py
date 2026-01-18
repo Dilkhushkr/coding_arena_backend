@@ -20,7 +20,8 @@ from apps.accounts.views import home
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-     path("", home),
+    path("", home),
     path("api/account/",include("apps.accounts.urls")),
+    path("api/problems/", include("apps.problems.urls")),
     path('api/submissions/', include('apps.submissions.urls')),
 ]

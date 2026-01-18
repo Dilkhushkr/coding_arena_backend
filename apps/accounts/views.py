@@ -35,7 +35,7 @@ class RegisterView(APIView):
             status=status.HTTP_201_CREATED
         )
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    
+        
 
 class LoginView(APIView):
 
@@ -123,6 +123,7 @@ class LogoutView(APIView):
 class CheckAuthView(APIView):
     def get(self, request):
         token = request.COOKIES.get("access_token")
+        print('Check Auth Token :', token)
         if not token:
             return Response(
                 {"isAuthenticated": False},
