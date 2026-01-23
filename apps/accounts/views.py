@@ -43,6 +43,7 @@ class LoginView(APIView):
 
         email = request.data.get("email")
         password  = request.data.get('password')
+        remember_me = request.data.get('remember_me')
 
         user =  authenticate(username = email,password = password)
 
@@ -60,21 +61,27 @@ class LoginView(APIView):
             {"message" : "Login successfull"},
             status=status.HTTP_200_OK
         )
+        
+        if remember_me:
+            refresh_max_age = 7 * 24 * 60 * 60  
+        else:
+            refresh_max_age = 24 * 60 * 60
 
         response.set_cookie(
             key="access_token",
             value=tokens['access'],
             httponly=True,
             secure=True,
-            samesite="None"
+            samesite="None",
+            max_age=15*60
         )
         response.set_cookie(
             key="refresh_token",
             value=tokens['refresh'],
             httponly=True,
             secure=True,
-            samesite="None"
-
+            samesite="None",
+            max_age=refresh_max_age
         )
         return response
 

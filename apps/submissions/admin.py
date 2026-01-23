@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import ProgrammingLanguage
-
+from .models import Submission
 @admin.register(ProgrammingLanguage)
 
 class ProgrammingLanguageAdmin(admin.ModelAdmin):
@@ -16,3 +16,24 @@ class ProgrammingLanguageAdmin(admin.ModelAdmin):
     ordering = ('display_name',)
 
     readonly_fields = ()
+
+
+@admin.register(Submission)
+class SubmissionAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'problme',
+        'language',
+        'result',
+        'created_at',
+    )
+
+    readonly_fields = (
+        'id',
+        'user',
+        'problme',
+        'language',
+        'result',
+        'created_at',
+    )
