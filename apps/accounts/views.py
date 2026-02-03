@@ -147,3 +147,5 @@ class CheckAuthView(APIView):
                 {"isAuthenticated": False},
                 status=status.HTTP_401_UNAUTHORIZED
             )
+
+
