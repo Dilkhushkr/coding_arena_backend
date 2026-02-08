@@ -158,8 +158,7 @@ class CheckAuthView(APIView):
 
 class ForgotPasswordView(APIView):
     def post(self,request):
-        email = request.data.get("email")
-
+        email = request.data.get("email")   
         if not email:
             return Response(
 
@@ -187,31 +186,45 @@ class ForgotPasswordView(APIView):
     
 
 class ResetPasswordView(APIView):
-    def post(self, request, uidb64, token):
+    def post(self, request):
+        uid = request.data.get("uid")
+        token = request.data.get("token")
         new_password = request.data.get("new_password")
 
-        if not new_password:
+        if not all([uid, token, new_password]):
             return Response(
-                {'error' : 'New password is required'},
+                {"error": "All fields are required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
 
-        if user and PasswordResetTokenGenerator().check_token(user, token):
-            user.set_password(new_password)
-            user.save()
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except Exception:
             return Response(
-                {'message' : 'Password reset successful'},
-                status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {'error' : 'Invalid or expired token'},
+                {"error": "Invalid reset link"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            return Response(
+                {"error": "Token is invalid or expired"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"message": "Password reset successful"},
+            status=status.HTTP_200_OK
+        )
+
+
+            
+
+
+
+      
 
 
